@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { map, mergeMap } from 'rxjs/operators';
+import { map, mergeMap, filter, distinctUntilChanged, tap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { LocaleService } from '../common/service/locale.service';
@@ -22,7 +22,7 @@ export class IndexDetailComponent implements OnInit {
 
   indexName: string;
   index$: Observable<Index>;
-  locale$: Observable<any>;
+  locale: any;
 
   constructor(
     private route: ActivatedRoute,
@@ -31,11 +31,13 @@ export class IndexDetailComponent implements OnInit {
 
   ngOnInit() {
     this.index$ = this.route.params.pipe(
-      map(params => params['ticker']),
-      mergeMap((name: string) => this.http.get<Index>('/ied-server/' + name)));
-    this.locale$ = this.index$.pipe(
-      map(index => index['locale']),
-      map((locale => this.localeService.getLocale(locale))));
+      filter(params => 'ticker' in params),
+      map(params => params.ticker),
+      mergeMap((name: string) => {
+        console.log('fetching data');
+        return this.http.get<Index>('/ied-server/' + name);
+      }),
+      tap((res) => this.locale = this.localeService.getLocale(res['locale'])));
   }
 
 }

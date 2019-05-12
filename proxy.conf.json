@@ -1,0 +1,9 @@
+{
+    "/ied-server" : {
+        "target": "http://localhost:8088",
+        "secure": false,
+        "logLevel": "debug",
+        "changeOrigin": true,
+        "pathRewrite": {"^/ied-server" : ""}
+    }
+}

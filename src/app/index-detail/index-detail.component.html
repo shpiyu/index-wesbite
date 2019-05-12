@@ -1,4 +1,4 @@
-<div>
-  <p><b>{{(locale$ | async)?.ticker}}:</b> {{(index$ | async)?.ticker}}</p>
-  <p><b>{{(locale$ | async)?.name}}:</b> {{(index$ | async)?.name}}</p>
-</div>
+<ng-container *ngIf="index$ | async as index">
+    <p><b>{{locale.ticker}}:</b> {{index.ticker}}</p>
+    <p><b>{{locale.name}}:</b> {{index.name}}</p>
+</ng-container>

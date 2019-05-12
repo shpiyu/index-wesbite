@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { map, mergeMap, filter, distinctUntilChanged, tap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { LocaleService } from '../common/service/locale.service';
+import { Locale } from '../common/service/locale';
 
 
 
@@ -18,11 +19,11 @@ interface Index {
   templateUrl: './index-detail.component.html',
   styleUrls: ['./index-detail.component.sass']
 })
-export class IndexDetailComponent implements OnInit {
+export class IndexDetailComponent implements OnInit, OnDestroy{
 
   indexName: string;
   index$: Observable<Index>;
-  locale: any;
+  locale: Locale;
 
   constructor(
     private route: ActivatedRoute,
@@ -30,6 +31,8 @@ export class IndexDetailComponent implements OnInit {
     private localeService: LocaleService) { }
 
   ngOnInit() {
+    this.localeService.locale$.subscribe(data => this.locale = data);
+
     this.index$ = this.route.params.pipe(
       filter(params => 'ticker' in params),
       map(params => params.ticker),
@@ -37,7 +40,11 @@ export class IndexDetailComponent implements OnInit {
         console.log('fetching data');
         return this.http.get<Index>('/ied-server/' + name);
       }),
-      tap((res) => this.locale = this.localeService.getLocale(res['locale'])));
+      tap((res) => this.localeService.setLocale(res['locale'])));
+  }
+
+  ngOnDestroy() {
+    this.localeService.locale$.unsubscribe();
   }
 
 }
